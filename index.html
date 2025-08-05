@@ -1030,7 +1030,7 @@
                     company: (row[8] || 'Unknown').trim(), // Company
                     brand: (row[7] || '').trim(), // Brand (assuming column G)
                     address: (row[9] || '').trim(), // Site, Address
-                    guests: parseInt(row[10]) || 0, // No of guests
+                    guests: parseGuestCount(row[10]) || 0, // No of guests
                     contactPerson: (row[11] || '').trim(), // Contact Person
                     phoneNumber: (row[13] || '').trim(), // Phone Number
                     customerRequests: (row[18] || '').trim(), // Customer requests
@@ -1068,6 +1068,37 @@
             }
             
             return '';
+        }
+
+        function parseGuestCount(guestStr) {
+            if (!guestStr) return 0;
+            
+            // Convert to string if it's a number
+            const str = String(guestStr).trim();
+            
+            // If it's empty or just whitespace, return 0
+            if (!str) return 0;
+            
+            // Extract the first number before any non-digit character (except decimal points)
+            // This handles cases like "40+20", "25 people", "30-35", etc.
+            const match = str.match(/^(\d+(?:\.\d+)?)/);
+            
+            if (match) {
+                const number = parseFloat(match[1]);
+                
+                // Exclude values over 1000 (likely zip codes or other non-guest data)
+                if (number > 1000) {
+                    console.log('Excluding large guest count (likely zip code):', str, '→', 0);
+                    return 0;
+                }
+                
+                // Round to nearest integer for guest counts
+                return Math.round(number);
+            }
+            
+            // If no number found, return 0
+            console.log('No valid guest count found in:', str, '→', 0);
+            return 0;
         }
 
         function standardizeTime(timeStr) {
