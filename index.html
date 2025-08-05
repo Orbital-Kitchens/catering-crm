@@ -1030,7 +1030,8 @@
                     company: (row[8] || 'Unknown').trim(), // Company
                     brand: (row[7] || '').trim(), // Brand (assuming column G)
                     address: (row[9] || '').trim(), // Site, Address
-                    guests: parseGuestCount(row[10]) || 0, // No of guests
+                    guests: parseGuestCount(row[10]), // No of guests - cleaned for calculations
+                    guestsRaw: (row[10] || '').toString().trim(), // Raw guest count for display
                     contactPerson: (row[11] || '').trim(), // Contact Person
                     phoneNumber: (row[13] || '').trim(), // Phone Number
                     customerRequests: (row[18] || '').trim(), // Customer requests
@@ -1320,7 +1321,7 @@
                     <td>${order.company}</td>
                     <td>${order.address}</td>
                     <td><span class="platform-badge platform-${order.platform.toLowerCase().replace(/\s+/g, '')}">${order.platform}</span></td>
-                    <td>${order.guests}</td>
+                    <td>${order.guestsRaw}</td>
                     <td>${order.contactPerson}</td>
                     <td>${order.phoneNumber}</td>
                     <td><span class="status-badge status-${getStatusClass(order.productionStatus)}">${order.productionStatus}</span></td>
@@ -1400,7 +1401,7 @@
                     <td>${order.contactPerson}</td>
                     <td>${order.phoneNumber}</td>
                     <td><span class="platform-badge platform-${order.platform.toLowerCase().replace(/\s+/g, '')}">${order.platform}</span></td>
-                    <td>${order.guests}</td>
+                    <td>${order.guestsRaw}</td>
                     <td>${order.customerRequests}</td>
                     <td>${order.driver}</td>
                 </tr>
@@ -1511,7 +1512,7 @@
                             </div>
                             <div class="order-detail">
                                 <div class="order-detail-label">Headcount</div>
-                                <div class="order-detail-value">${order.guests} guests</div>
+                                <div class="order-detail-value">${order.guestsRaw} guests</div>
                             </div>
                         </div>
                     `).join('');
