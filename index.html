@@ -1015,6 +1015,13 @@
             const processedOrders = rows.filter(row => {
                 // Look for date strings that contain month names and years or valid date patterns
                 const dateStr = row[2];
+                const canceled = row[6]; // Column G (0-indexed, so column G is index 6)
+                
+                // Filter out canceled orders (where column G is "Y")
+                if (canceled && canceled.toString().trim().toLowerCase() === 'y') {
+                    return false;
+                }
+                
                 return dateStr && typeof dateStr === 'string' && 
                        (dateStr.includes('2024') || dateStr.includes('2025') || 
                         dateStr.match(/\b(January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/i));
