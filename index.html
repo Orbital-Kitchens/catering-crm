@@ -6,6 +6,7 @@
     <title>Orbital Catering CRM</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBXczOmluY96FcE0PXBndJinIbLvXk91RY&callback=initMap"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -84,93 +85,6 @@
             border-radius: 24px;
             padding: 40px;
             margin-bottom: 30px;
-        }
-
-        .setup-section h2 {
-            color: #ffffff;
-            margin-bottom: 30px;
-            font-size: 2rem;
-            font-weight: 600;
-        }
-
-        .connection-methods {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .method-card {
-            padding: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.02);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .method-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(120, 119, 198, 0.5), transparent);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .method-card:hover, .method-card.selected {
-            border-color: #7877c6;
-            background: rgba(120, 119, 198, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .method-card:hover::before, .method-card.selected::before {
-            opacity: 1;
-        }
-
-        .method-card h3 {
-            color: #ffffff;
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 500;
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            font-size: 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            color: #ffffff;
-            font-family: 'Montserrat', sans-serif;
-            transition: all 0.3s ease;
-        }
-
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: #7877c6;
-            background: rgba(120, 119, 198, 0.1);
-            box-shadow: 0 0 0 3px rgba(120, 119, 198, 0.2);
-        }
-
-        .form-group input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
         }
 
         .btn {
@@ -378,39 +292,6 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .orders-table th:first-child, .orders-table td:first-child {
-            min-width: 140px; /* Date column */
-        }
-
-        .orders-table th:nth-child(2), .orders-table td:nth-child(2) {
-            min-width: 180px; /* Time column */
-        }
-
-        /* Brand column - wider in all tables */
-        .orders-table th:nth-child(3), .orders-table td:nth-child(3) {
-            min-width: 180px; /* Brand column */
-        }
-
-        /* Today's Orders - Company is 3rd column (after Time, Brand) */
-        #todaysOrdersTab .orders-table th:nth-child(3), 
-        #todaysOrdersTab .orders-table td:nth-child(3) {
-            min-width: 200px; /* Company column */
-        }
-
-        /* All Orders - Address is 5th column (after Date, Time, Brand, Company) */
-        #orderHistoryTab .orders-table th:nth-child(5), 
-        #orderHistoryTab .orders-table td:nth-child(5) {
-            min-width: 200px; /* Address column */
-            max-width: 300px;
-        }
-
-        /* Today's Orders - Address is 4th column (after Time, Brand, Company) */
-        #todaysOrdersTab .orders-table th:nth-child(4), 
-        #todaysOrdersTab .orders-table td:nth-child(4) {
-            min-width: 200px; /* Address column */
-            max-width: 300px;
-        }
-
         .orders-table th {
             background: rgba(255, 255, 255, 0.05);
             font-weight: 600;
@@ -463,16 +344,6 @@
         .platform-sharebite { background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white; }
         .platform-ezcater { background: linear-gradient(135deg, #ef4444, #f87171); color: white; }
         .platform-direct { background: linear-gradient(135deg, #6b7280, #9ca3af); color: white; }
-        .platform-grubhub { background: linear-gradient(135deg, #ff6b35, #ff8e53); color: white; }
-        .platform-ubereats { background: linear-gradient(135deg, #00a86b, #26d0ce); color: white; }
-        .platform-doordash { background: linear-gradient(135deg, #ff3008, #ff6347); color: white; }
-        .platform-seamless { background: linear-gradient(135deg, #009639, #32cd32); color: white; }
-        .platform-postmates { background: linear-gradient(135deg, #000000, #434343); color: white; }
-        .platform-caviar { background: linear-gradient(135deg, #7b68ee, #9370db); color: white; }
-        .platform-menufy { background: linear-gradient(135deg, #ff1493, #ff69b4); color: white; }
-        .platform-biteunite { background: linear-gradient(135deg, #20b2aa, #48d1cc); color: white; }
-        .platform-freshly { background: linear-gradient(135deg, #ff4500, #ffa500); color: white; }
-        .platform-mealpal { background: linear-gradient(135deg, #4169e1, #6495ed); color: white; }
 
         .chart-container {
             background: rgba(255, 255, 255, 0.02);
@@ -552,25 +423,6 @@
             color: #f87171;
         }
 
-        .setup-instructions {
-            background: rgba(16, 185, 129, 0.1);
-            border-left: 4px solid #10b981;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 0 12px 12px 0;
-        }
-
-        .setup-instructions h4 {
-            color: #34d399;
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-
-        .setup-instructions p, .setup-instructions li {
-            color: rgba(255, 255, 255, 0.8);
-            line-height: 1.6;
-        }
-
         .top-customers {
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -636,25 +488,6 @@
             overflow-x: hidden;
         }
 
-        /* Custom scrollbar for customer orders */
-        .customer-orders-detail::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .customer-orders-detail::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 3px;
-        }
-
-        .customer-orders-detail::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, #7877c6, #a855f7);
-            border-radius: 3px;
-        }
-
-        .customer-orders-detail::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(135deg, #a855f7, #7877c6);
-        }
-
         .order-item {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -664,10 +497,6 @@
             border-radius: 8px;
             margin-bottom: 8px;
             border-left: 3px solid rgba(120, 119, 198, 0.5);
-        }
-
-        .order-item:last-child {
-            margin-bottom: 0;
         }
 
         .order-detail {
@@ -700,7 +529,7 @@
         }
 
         @media (max-width: 768px) {
-            .connection-methods, .chart-grid {
+            .chart-grid {
                 grid-template-columns: 1fr;
             }
             
@@ -721,7 +550,6 @@
             }
         }
 
-        /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -733,10 +561,6 @@
         ::-webkit-scrollbar-thumb {
             background: linear-gradient(135deg, #7877c6, #a855f7);
             border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(135deg, #a855f7, #7877c6);
         }
     </style>
 </head>
@@ -760,6 +584,7 @@
             <button class="tab-btn active" onclick="showTab('todaysOrders')">📅 Today's Orders</button>
             <button class="tab-btn" onclick="showTab('orderHistory')">📋 All Orders</button>
             <button class="tab-btn" onclick="showTab('analytics')">📊 Analytics</button>
+            <button class="tab-btn" onclick="showTab('map')">🗺️ Map</button>
         </div>
 
         <!-- Today's Orders Tab -->
@@ -805,7 +630,6 @@
                         </tr>
                     </thead>
                     <tbody id="todayOrdersTable">
-                        <!-- Orders will be populated here -->
                     </tbody>
                 </table>
             </div>
@@ -834,15 +658,15 @@
                 <div class="search-row">
                     <input type="text" id="historySearchInput" placeholder="Search all orders..." onkeyup="filterHistoryOrders()">
                 </div>
-            <div class="search-row">
-                <input type="text" id="historyCompanyFilter" placeholder="Filter by company..." onkeyup="filterHistoryOrders()">
-                <input type="text" id="historyBrandFilter" placeholder="Filter by brand..." onkeyup="filterHistoryOrders()">
-                <select id="historyPlatformFilter" onchange="filterHistoryOrders()">
-                    <option value="">All Platforms</option>
-                </select>
-                <input type="date" id="startDateFilter" onchange="filterHistoryOrders()">
-                <input type="date" id="endDateFilter" onchange="filterHistoryOrders()">
-            </div>
+                <div class="search-row">
+                    <input type="text" id="historyCompanyFilter" placeholder="Filter by company..." onkeyup="filterHistoryOrders()">
+                    <input type="text" id="historyBrandFilter" placeholder="Filter by brand..." onkeyup="filterHistoryOrders()">
+                    <select id="historyPlatformFilter" onchange="filterHistoryOrders()">
+                        <option value="">All Platforms</option>
+                    </select>
+                    <input type="date" id="startDateFilter" onchange="filterHistoryOrders()">
+                    <input type="date" id="endDateFilter" onchange="filterHistoryOrders()">
+                </div>
             </div>
 
             <div style="overflow-x: auto;">
@@ -863,7 +687,6 @@
                         </tr>
                     </thead>
                     <tbody id="historyOrdersTable">
-                        <!-- Orders will be populated here -->
                     </tbody>
                 </table>
             </div>
@@ -915,8 +738,41 @@
             <div class="top-customers">
                 <h3>Top Customers</h3>
                 <div class="customer-list" id="topCustomersList">
-                    <!-- Top customers will be populated here -->
                 </div>
+            </div>
+        </div>
+
+        <!-- Map Tab -->
+        <div class="tab-content" id="mapTab">
+            <h2>🗺️ Delivery Map</h2>
+            
+            <div class="date-filters">
+                <button class="btn btn-secondary" onclick="showTodaysOrdersOnMap()">📅 Today's Orders</button>
+                <label>Date Range:</label>
+                <input type="date" id="mapStartDate" onchange="updateMap()">
+                <label>to</label>
+                <input type="date" id="mapEndDate" onchange="updateMap()">
+                <button class="btn btn-secondary" onclick="setMapDateRange('7days')">Last 7 Days</button>
+                <button class="btn btn-secondary" onclick="setMapDateRange('30days')">Last 30 Days</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="mapOrdersCount">0</div>
+                    <div class="stat-label">Orders Plotted</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="mapUniqueAddresses">0</div>
+                    <div class="stat-label">Unique Addresses</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="mapPickupsCount">0</div>
+                    <div class="stat-label">Pickups</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div id="map" style="height: 600px; border-radius: 12px; overflow: hidden;"></div>
             </div>
         </div>
     </div>
@@ -927,21 +783,19 @@
         let allOrders = [];
         let connectionConfig = {};
         let charts = {};
+        let map;
+        let markers = [];
+        let geocodeCache = {};
 
         // Auto-connect on page load
         const AUTO_API_KEY = 'AIzaSyBXczOmluY96FcE0PXBndJinIbLvXk91RY';
         const AUTO_ORBITAL_TAB = 'Orbital';
 
-        // Initialize connection config and auto-connect
         connectionConfig = {
             method: 'apiKey',
             apiKey: AUTO_API_KEY,
             orbitalTab: AUTO_ORBITAL_TAB
         };
-
-        function selectMethod(method) {
-            // This function is no longer needed but keeping for compatibility
-        }
 
         async function autoConnect() {
             showLoading(true);
@@ -956,35 +810,7 @@
             }
         }
 
-        async function connectWithApiKey() {
-            const apiKey = document.getElementById('apiKey').value;
-            const orbitalTab = document.getElementById('orbitalTab').value;
-
-            if (!apiKey) {
-                showStatus('Please enter your Google Sheets API key', 'error');
-                return;
-            }
-
-            connectionConfig = {
-                method: 'apiKey',
-                apiKey,
-                orbitalTab
-            };
-
-            showLoading(true);
-            
-            try {
-                await loadDataFromGoogleSheets();
-                showStatus('✅ Successfully connected to Orbital Systems!', 'success');
-                launchCRM();
-            } catch (error) {
-                showStatus('Connection failed: ' + error.message, 'error');
-                showLoading(false);
-            }
-        }
-
         async function loadDataFromGoogleSheets() {
-            // Load all orders from Orbital tab
             const orbitalRange = `${connectionConfig.orbitalTab}!A:AC`;
             const orbitalUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${orbitalRange}?key=${connectionConfig.apiKey}`;
             
@@ -995,29 +821,20 @@
                 throw new Error(`Orbital data: ${orbitalData.error.message}`);
             }
 
-            // Process the data
             allOrders = processOrbitalData(orbitalData.values);
         }
 
         function processOrbitalData(rawData) {
             if (!rawData || rawData.length < 2) {
-                console.log('No data found in sheet');
                 return [];
             }
 
-            console.log('Raw data rows:', rawData.length);
-            console.log('Headers:', rawData[0]);
-            console.log('Sample row:', rawData[1]);
-
-            const headers = rawData[0];
             const rows = rawData.slice(1);
 
             const processedOrders = rows.filter(row => {
-                // Look for date strings that contain month names and years or valid date patterns
                 const dateStr = row[2];
-                const canceled = row[6]; // Column G (0-indexed, so column G is index 6)
+                const canceled = row[6];
                 
-                // Filter out canceled orders (where column G is "Y")
                 if (canceled && canceled.toString().trim().toLowerCase() === 'y') {
                     return false;
                 }
@@ -1030,42 +847,29 @@
                 
                 return {
                     id: index + 1,
-                    date: parsedDate, // Date column
-                    originalDate: row[2], // Keep original for debugging
-                    time: standardizeTime(row[4] || ''), // Delivery Time
-                    platform: standardizePlatform(row[3] || ''), // Catering Platform
-                    company: (row[8] || 'Unknown').trim(), // Company
-                    brand: (row[7] || '').trim(), // Brand (assuming column G)
-                    address: (row[9] || '').trim(), // Site, Address
-                    guests: parseGuestCount(row[10]), // No of guests - cleaned for calculations
-                    guestsRaw: (row[10] || '').toString().trim(), // Raw guest count for display
-                    contactPerson: (row[11] || '').trim(), // Contact Person
-                    phoneNumber: (row[13] || '').trim(), // Phone Number
-                    customerRequests: (row[18] || '').trim(), // Customer requests
-                    driver: (row[22] || '').trim(), // Driver Name
-                    productionStatus: (row[14] || '').trim() // Production Sheet Status
+                    date: parsedDate,
+                    originalDate: row[2],
+                    time: standardizeTime(row[4] || ''),
+                    platform: standardizePlatform(row[3] || ''),
+                    company: (row[8] || 'Unknown').trim(),
+                    brand: (row[7] || '').trim(),
+                    address: (row[9] || '').trim(),
+                    guests: parseGuestCount(row[10]),
+                    guestsRaw: (row[10] || '').toString().trim(),
+                    contactPerson: (row[11] || '').trim(),
+                    phoneNumber: (row[13] || '').trim(),
+                    customerRequests: (row[18] || '').trim(),
+                    driver: (row[22] || '').trim(),
+                    productionStatus: (row[14] || '').trim()
                 };
-            }).filter(order => order.date && order.date !== ''); // Only keep orders with valid parsed dates
+            }).filter(order => order.date && order.date !== '');
 
-            console.log('Processed orders:', processedOrders.length);
-            console.log('Sample processed order:', processedOrders[0]);
-            
-            // Show date conversion examples
-            if (processedOrders.length > 0) {
-                console.log('Date conversion examples:');
-                processedOrders.slice(0, 10).forEach(order => {
-                    console.log(`"${order.originalDate}" → "${order.date}"`);
-                });
-            }
-
-            // Sort by date desc (newest first)
             return processedOrders.sort((a, b) => new Date(b.date) - new Date(a.date));
         }
 
         function parseDate(dateStr) {
             if (!dateStr) return '';
             
-            // Handle formats like "Fri June 6 2025" or "Tue Apr 13, 2021"
             try {
                 const date = new Date(dateStr);
                 if (!isNaN(date.getTime())) {
@@ -1081,38 +885,24 @@
         function parseGuestCount(guestStr) {
             if (!guestStr) return 0;
             
-            // Convert to string if it's a number
             const str = String(guestStr).trim();
-            
-            // If it's empty or just whitespace, return 0
             if (!str) return 0;
             
-            // Extract the first number before any non-digit character (except decimal points)
-            // This handles cases like "40+20", "25 people", "30-35", etc.
             const match = str.match(/^(\d+(?:\.\d+)?)/);
             
             if (match) {
                 const number = parseFloat(match[1]);
-                
-                // Exclude values over 1000 (likely zip codes or other non-guest data)
                 if (number > 1000) {
-                    console.log('Excluding large guest count (likely zip code):', str, '→', 0);
                     return 0;
                 }
-                
-                // Round to nearest integer for guest counts
                 return Math.round(number);
             }
             
-            // If no number found, return 0
-            console.log('No valid guest count found in:', str, '→', 0);
             return 0;
         }
 
         function standardizeTime(timeStr) {
             if (!timeStr) return '';
-            
-            // Clean up time format
             return timeStr.replace(/\s+/g, ' ')
                          .replace(/- /g, ' - ')
                          .replace(/AM/gi, 'AM')
@@ -1123,20 +913,17 @@
         function standardizePlatform(platform) {
             if (!platform) return 'Direct';
             
-            // Clean up platform names and standardize
             const cleaned = platform.replace(/[\b]/g, '')
                                   .replace(/\s+/g, ' ')
                                   .trim()
                                   .toLowerCase();
             
-            // Standardize common variations
             if (cleaned.includes('catercow')) return 'CaterCow';
             if (cleaned.includes('clubfeast')) return 'ClubFeast';
             if (cleaned.includes('fooda')) return 'Fooda';
             if (cleaned.includes('sharebite') || cleaned.includes('share bite')) return 'ShareBite';
             if (cleaned.includes('ezcater') || cleaned.includes('ez cater')) return 'ezCater';
             
-            // Capitalize first letter of each word
             return platform.replace(/[\b]/g, '')
                           .replace(/\s+/g, ' ')
                           .trim()
@@ -1174,7 +961,6 @@
             statusDiv.innerHTML = `<h4>${type === 'error' ? '❌' : '✅'} ${type === 'error' ? 'Connection Error' : 'Connection Success'}</h4><p>${message}</p>`;
             statusDiv.classList.remove('hidden');
             
-            // Auto-hide success messages after 3 seconds
             if (type === 'success') {
                 setTimeout(() => {
                     statusDiv.classList.add('hidden');
@@ -1185,7 +971,6 @@
         function launchCRM() {
             document.getElementById('setupSection').classList.add('hidden');
             
-            // Ensure Today's Orders tab is properly activated
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
@@ -1193,15 +978,10 @@
                 btn.classList.remove('active');
             });
             
-            // Activate Today's Orders tab
             document.getElementById('todaysOrdersTab').classList.add('active');
             document.querySelector('button[onclick="showTab(\'todaysOrders\')"]').classList.add('active');
             
             updateAllData();
-            
-            // Debug: Log data
-            console.log('Total orders loaded:', allOrders.length);
-            console.log('Sample order:', allOrders[0]);
         }
 
         async function refreshData() {
@@ -1222,7 +1002,6 @@
         }
 
         function showTab(tabName) {
-            // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
@@ -1230,17 +1009,17 @@
                 btn.classList.remove('active');
             });
 
-            // Show selected tab
             document.getElementById(tabName + 'Tab').classList.add('active');
             event.target.classList.add('active');
 
-            // Update data based on tab
             if (tabName === 'todaysOrders') {
                 updateTodaysOrders();
             } else if (tabName === 'orderHistory') {
                 updateOrderHistory();
             } else if (tabName === 'analytics') {
                 updateAnalytics();
+            } else if (tabName === 'map') {
+                updateMap();
             }
         }
 
@@ -1249,15 +1028,20 @@
             updateOrderHistory();
             updateAnalytics();
             
-            // Populate platform filters
+            if (document.getElementById('mapStartDate').value === '') {
+                const endDate = new Date();
+                const startDate = new Date();
+                startDate.setDate(endDate.getDate() - 7);
+                
+                document.getElementById('mapStartDate').value = startDate.toISOString().split('T')[0];
+                document.getElementById('mapEndDate').value = endDate.toISOString().split('T')[0];
+            }
+            
             const platforms = [...new Set(allOrders.map(o => o.platform).filter(p => p))];
-            const companies = [...new Set(allOrders.map(o => o.company).filter(c => c && c !== 'Unknown'))].sort();
-            const brands = [...new Set(allOrders.map(o => o.brand).filter(b => b))].sort();
             
             const todayPlatformFilter = document.getElementById('todayPlatformFilter');
             const historyPlatformFilter = document.getElementById('historyPlatformFilter');
             
-            // Platform filters
             [todayPlatformFilter, historyPlatformFilter].forEach(select => {
                 select.innerHTML = '<option value="">All Platforms</option>';
                 platforms.forEach(platform => {
@@ -1271,14 +1055,7 @@
 
         function updateTodaysOrders() {
             const today = getTodaysDate();
-            console.log('Filtering for today:', today);
-            
-            const todaysOrders = allOrders.filter(order => {
-                console.log('Comparing order date:', order.date, 'with today:', today);
-                return order.date === today;
-            });
-            
-            console.log('Today\'s orders found:', todaysOrders.length);
+            const todaysOrders = allOrders.filter(order => order.date === today);
             
             const totalGuests = todaysOrders.reduce((sum, o) => sum + o.guests, 0);
             const uniqueCompanies = new Set(todaysOrders.map(o => o.company)).size;
@@ -1294,8 +1071,6 @@
             const today = getTodaysDate();
             const todaysOrders = allOrders.filter(order => order.date === today);
             
-            console.log('Rendering today\'s orders:', todaysOrders.length);
-            
             const searchTerm = document.getElementById('todaySearchInput').value.toLowerCase();
             const platformFilter = document.getElementById('todayPlatformFilter').value;
 
@@ -1305,8 +1080,6 @@
                 const matchesPlatform = !platformFilter || order.platform === platformFilter;
                 return matchesSearch && matchesPlatform;
             });
-
-            console.log('Filtered orders for today:', filteredOrders.length);
 
             const tableBody = document.getElementById('todayOrdersTable');
             
@@ -1356,8 +1129,6 @@
             const startDate = document.getElementById('startDateFilter').value;
             const endDate = document.getElementById('endDateFilter').value;
 
-            console.log('History filters - Company:', companyFilter, 'Brand:', brandFilter, 'Platform:', platformFilter, 'Start:', startDate, 'End:', endDate);
-
             let filteredOrders = allOrders.filter(order => {
                 const matchesSearch = order.company.toLowerCase().includes(searchTerm) ||
                                     order.contactPerson.toLowerCase().includes(searchTerm) ||
@@ -1366,7 +1137,6 @@
                 const matchesBrand = !brandFilter || order.brand.toLowerCase().includes(brandFilter);
                 const matchesPlatform = !platformFilter || order.platform === platformFilter;
                 
-                // Date comparison
                 let matchesStartDate = true;
                 let matchesEndDate = true;
                 
@@ -1380,9 +1150,6 @@
                 return matchesSearch && matchesCompany && matchesBrand && matchesPlatform && matchesStartDate && matchesEndDate;
             });
 
-            console.log('Filtered orders after all filters:', filteredOrders.length);
-
-            // Limit to 500 orders for performance
             filteredOrders = filteredOrders.slice(0, 500);
 
             const tableBody = document.getElementById('historyOrdersTable');
@@ -1416,21 +1183,14 @@
         }
 
         function updateAnalytics() {
-            console.log('Updating analytics with', allOrders.length, 'total orders');
-            
-            // Get date range for analytics
             const startDate = document.getElementById('analyticsStartDate').value;
             const endDate = document.getElementById('analyticsEndDate').value;
             
-            console.log('Analytics date range:', startDate, 'to', endDate);
-            
             let analyticsOrders = allOrders.filter(order => {
-                // Exclude Unknown and NA companies
                 if (!order.company || order.company.toLowerCase() === 'unknown' || order.company.toLowerCase() === 'na') {
                     return false;
                 }
                 
-                // Apply date filters
                 let matchesStartDate = true;
                 let matchesEndDate = true;
                 
@@ -1444,9 +1204,6 @@
                 return matchesStartDate && matchesEndDate;
             });
             
-            console.log('Orders after filtering:', analyticsOrders.length);
-            
-            // Platform analytics (exclude NA)
             const platformData = {};
             analyticsOrders.forEach(order => {
                 const platform = order.platform || 'Direct';
@@ -1455,9 +1212,6 @@
                 }
             });
 
-            console.log('Platform data:', platformData);
-
-            // Top customers (with date filter applied)
             const customerData = {};
             analyticsOrders.forEach(order => {
                 customerData[order.company] = (customerData[order.company] || 0) + 1;
@@ -1467,9 +1221,6 @@
                 .sort(([,a], [,b]) => b - a)
                 .slice(0, 10);
 
-            console.log('Top customers:', topCustomers);
-
-            // Update stats (all with date filter applied)
             const platformEntries = Object.entries(platformData);
             const topPlatform = platformEntries.length > 0 ? 
                 platformEntries.reduce(([platA, countA], [platB, countB]) => 
@@ -1479,10 +1230,7 @@
             const avgGuests = analyticsOrders.length > 0 ? 
                 analyticsOrders.reduce((sum, o) => sum + o.guests, 0) / analyticsOrders.length : 0;
             
-            // Total orders in date range instead of "this month"
             const totalOrders = analyticsOrders.length;
-            
-            // Repeat customers (with date filter applied)
             const repeatCustomers = Object.values(customerData).filter(count => count > 1).length;
 
             document.getElementById('analyticsTopPlatform').textContent = topPlatform;
@@ -1490,14 +1238,12 @@
             document.getElementById('analyticsMonthlyOrders').textContent = totalOrders;
             document.getElementById('analyticsRepeatCustomers').textContent = repeatCustomers;
 
-            // Render top customers with expandable details
             const topCustomersList = document.getElementById('topCustomersList');
             if (topCustomers.length > 0) {
                 topCustomersList.innerHTML = topCustomers.map(([company, count], index) => {
-                    // Get all orders for this customer (filtered by date range)
                     const customerOrders = analyticsOrders
                         .filter(order => order.company === company)
-                        .sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort by date desc
+                        .sort((a, b) => new Date(b.date) - new Date(a.date));
                     
                     const ordersDetailHtml = customerOrders.map(order => `
                         <div class="order-item">
@@ -1545,46 +1291,25 @@
                 topCustomersList.innerHTML = '<div style="text-align: center; color: rgba(255, 255, 255, 0.5);">No customer data available</div>';
             }
 
-            // Create charts
             createCharts(platformData, analyticsOrders);
         }
 
         function createCharts(platformData, ordersData) {
-            // Destroy existing charts
             Object.values(charts).forEach(chart => {
                 if (chart) chart.destroy();
             });
 
-            // Set Chart.js defaults for dark theme
             Chart.defaults.color = 'rgba(255, 255, 255, 0.8)';
             Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
 
-            // Platform orders chart
             const platformCtx = document.getElementById('platformChart').getContext('2d');
-            
-            // Get platform data and colors
             const platforms = Object.keys(platformData);
             const counts = Object.values(platformData);
             const colors = [
-                '#10b981', // Green
-                '#f59e0b', // Amber
-                '#3b82f6', // Blue
-                '#8b5cf6', // Purple
-                '#ef4444', // Red
-                '#6b7280', // Gray
-                '#ff6b35', // Orange Red
-                '#00a86b', // Teal
-                '#ff3008', // Crimson
-                '#009639', // Forest Green
-                '#000000', // Black
-                '#7b68ee', // Medium Slate Blue
-                '#ff1493', // Deep Pink
-                '#20b2aa', // Light Sea Green
-                '#ff4500', // Orange Red
-                '#4169e1'  // Royal Blue
+                '#10b981', '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444', '#6b7280',
+                '#ff6b35', '#00a86b', '#ff3008', '#009639', '#000000', '#7b68ee',
+                '#ff1493', '#20b2aa', '#ff4500', '#4169e1'
             ];
-
-            console.log('Chart - Platforms:', platforms, 'Counts:', counts);
 
             if (platforms.length > 0 && counts.some(count => count > 0)) {
                 charts.platform = new Chart(platformCtx, {
@@ -1605,25 +1330,14 @@
                                 labels: {
                                     padding: 20,
                                     usePointStyle: true,
-                                    font: {
-                                        family: 'Montserrat',
-                                        size: 12
-                                    }
+                                    font: { family: 'Montserrat', size: 12 }
                                 }
                             }
                         }
                     }
                 });
-            } else {
-                // Show empty state
-                platformCtx.clearRect(0, 0, platformCtx.canvas.width, platformCtx.canvas.height);
-                platformCtx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-                platformCtx.font = '16px Montserrat';
-                platformCtx.textAlign = 'center';
-                platformCtx.fillText('No platform data available', platformCtx.canvas.width / 2, platformCtx.canvas.height / 2);
             }
 
-            // Timeline chart - remove dots (points)
             const timelineData = {};
             ordersData.forEach(order => {
                 if (order.date) {
@@ -1645,8 +1359,8 @@
                             backgroundColor: 'rgba(120, 119, 198, 0.1)',
                             tension: 0.4,
                             fill: true,
-                            pointRadius: 0, // Remove dots
-                            pointHoverRadius: 6, // Show on hover
+                            pointRadius: 0,
+                            pointHoverRadius: 6,
                             pointBackgroundColor: '#7877c6',
                             pointBorderColor: '#ffffff',
                             pointBorderWidth: 2
@@ -1657,60 +1371,30 @@
                         scales: {
                             y: {
                                 beginAtZero: true,
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                },
-                                ticks: {
-                                    font: {
-                                        family: 'Montserrat'
-                                    }
-                                }
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                ticks: { font: { family: 'Montserrat' } }
                             },
                             x: {
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                },
-                                ticks: {
-                                    font: {
-                                        family: 'Montserrat'
-                                    }
-                                }
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                ticks: { font: { family: 'Montserrat' } }
                             }
                         },
                         plugins: {
-                            legend: {
-                                labels: {
-                                    font: {
-                                        family: 'Montserrat'
-                                    }
-                                }
-                            }
+                            legend: { labels: { font: { family: 'Montserrat' } } }
                         }
                     }
                 });
-            } else {
-                // Show empty state
-                timelineCtx.clearRect(0, 0, timelineCtx.canvas.width, timelineCtx.canvas.height);
-                timelineCtx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-                timelineCtx.font = '16px Montserrat';
-                timelineCtx.textAlign = 'center';
-                timelineCtx.fillText('No timeline data available', timelineCtx.canvas.width / 2, timelineCtx.canvas.height / 2);
             }
         }
 
-        // Make toggleCustomerOrders globally accessible
         window.toggleCustomerOrders = function(index) {
             const ordersDetail = document.getElementById(`orders-${index}`);
             const toggle = document.getElementById(`toggle-${index}`);
             
-            console.log('Toggling customer orders for index:', index);
-            
             if (ordersDetail.classList.contains('expanded')) {
                 ordersDetail.classList.remove('expanded');
                 toggle.classList.remove('expanded');
-                console.log('Collapsed customer', index);
             } else {
-                // Close all other expanded customers first
                 document.querySelectorAll('.customer-orders-detail.expanded').forEach(detail => {
                     detail.classList.remove('expanded');
                 });
@@ -1718,10 +1402,8 @@
                     t.classList.remove('expanded');
                 });
                 
-                // Open the clicked one
                 ordersDetail.classList.add('expanded');
                 toggle.classList.add('expanded');
-                console.log('Expanded customer', index);
             }
         };
 
@@ -1749,9 +1431,320 @@
             renderHistoryOrders();
         }
 
+        // MAP FUNCTIONALITY
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 12,
+                center: { lat: 40.7128, lng: -74.0060 },
+                styles: [
+                    {
+                        elementType: "geometry",
+                        stylers: [{ color: "#1a1a1a" }]
+                    },
+                    {
+                        elementType: "labels.text.stroke",
+                        stylers: [{ color: "#1a1a1a" }]
+                    },
+                    {
+                        elementType: "labels.text.fill",
+                        stylers: [{ color: "#ffffff" }]
+                    },
+                    {
+                        featureType: "administrative.locality",
+                        elementType: "labels.text.fill",
+                        stylers: [{ color: "#7877c6" }]
+                    },
+                    {
+                        featureType: "poi",
+                        elementType: "labels.text.fill",
+                        stylers: [{ color: "#7877c6" }]
+                    },
+                    {
+                        featureType: "poi.park",
+                        elementType: "geometry",
+                        stylers: [{ color: "#263c3f" }]
+                    },
+                    {
+                        featureType: "poi.park",
+                        elementType: "labels.text.fill",
+                        stylers: [{ color: "#6b9a76" }]
+                    },
+                    {
+                        featureType: "road",
+                        elementType: "geometry",
+                        stylers: [{ color: "#38414e" }]
+                    },
+                    {
+                        featureType: "road",
+                        elementType: "geometry.stroke",
+                        stylers: [{ color: "#212a37" }]
+                    },
+                    {
+                        featureType: "road",
+                        elementType: "labels.text.fill",
+                        stylers: [{ color: "#9ca5b3" }]
+                    },
+                    {
+                        featureType: "road.highway",
+                        elementType: "geometry",
+                        stylers: [{ color: "#746855" }]
+                    },
+                    {
+                        featureType: "road.highway",
+                        elementType: "geometry.stroke",
+                        stylers: [{ color: "#1f2835" }]
+                    },
+                    {
+                        featureType: "road.highway",
+                        elementType: "labels.text.fill",
+                        stylers: [{ color: "#f3d19c" }]
+                    },
+                    {
+                        featureType: "transit",
+                        elementType: "geometry",
+                        stylers: [{ color: "#2f3948" }]
+                    },
+                    {
+                        featureType: "transit.station",
+                        elementType: "labels.text.fill",
+                        stylers: [{ color: "#7877c6" }]
+                    },
+                    {
+                        featureType: "water",
+                        elementType: "geometry",
+                        stylers: [{ color: "#17263c" }]
+                    },
+                    {
+                        featureType: "water",
+                        elementType: "labels.text.fill",
+                        stylers: [{ color: "#515c6d" }]
+                    },
+                    {
+                        featureType: "water",
+                        elementType: "labels.text.stroke",
+                        stylers: [{ color: "#17263c" }]
+                    }
+                ]
+            });
+
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(endDate.getDate() - 7);
+            
+            document.getElementById('mapStartDate').value = startDate.toISOString().split('T')[0];
+            document.getElementById('mapEndDate').value = endDate.toISOString().split('T')[0];
+        }
+
+        function cleanAddress(address) {
+            if (!address) return '';
+            
+            if (address.toLowerCase().includes('pick up') || address.toLowerCase().trim() === 'pickup') {
+                return '74 5th Ave, New York, NY, 10011';
+            }
+            
+            let cleaned = address.trim();
+            
+            cleaned = cleaned.replace(/\s*\([^)]*\)\s*/g, ' ');
+            cleaned = cleaned.replace(/\s*,\s*(room|floor|ste|suite|#)\s*[^,]*/gi, '');
+            cleaned = cleaned.replace(/\s+(room|floor|ste|suite|#)\s+[^,\s]*/gi, '');
+            cleaned = cleaned.replace(/\s*Cross Street:.*$/i, '');
+            
+            if (!cleaned.match(/New York,?\s*NY/i) && !cleaned.match(/NYC/i)) {
+                if (!cleaned.match(/,\s*\d{5}$/)) {
+                    cleaned += ', New York, NY';
+                } else {
+                    cleaned = cleaned.replace(/,\s*(\d{5})$/, ', New York, NY, $1');
+                }
+            }
+            
+            cleaned = cleaned.replace(/\s+/g, ' ');
+            cleaned = cleaned.replace(/,\s*,/g, ',');
+            cleaned = cleaned.replace(/^\s*,\s*|\s*,\s*$/g, '');
+            
+            return cleaned;
+        }
+
+        async function geocodeAddress(address) {
+            if (geocodeCache[address]) {
+                return geocodeCache[address];
+            }
+            
+            const cleanedAddress = cleanAddress(address);
+            if (!cleanedAddress) return null;
+            
+            if (geocodeCache[cleanedAddress]) {
+                return geocodeCache[cleanedAddress];
+            }
+            
+            try {
+                const geocoder = new google.maps.Geocoder();
+                const result = await new Promise((resolve, reject) => {
+                    geocoder.geocode({ address: cleanedAddress }, (results, status) => {
+                        if (status === 'OK' && results[0]) {
+                            resolve(results[0]);
+                        } else {
+                            reject(new Error(`Geocoding failed: ${status}`));
+                        }
+                    });
+                });
+                
+                const location = {
+                    lat: result.geometry.location.lat(),
+                    lng: result.geometry.location.lng(),
+                    formattedAddress: result.formatted_address
+                };
+                
+                geocodeCache[address] = location;
+                geocodeCache[cleanedAddress] = location;
+                return location;
+            } catch (error) {
+                console.warn('Failed to geocode address:', cleanedAddress, error);
+                return null;
+            }
+        }
+
+        function clearMarkers() {
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
+        }
+
+        async function updateMap() {
+            if (!map) {
+                console.warn('Map not initialized yet');
+                return;
+            }
+            
+            console.log('Updating map...');
+            
+            const startDate = document.getElementById('mapStartDate').value;
+            const endDate = document.getElementById('mapEndDate').value;
+            
+            let mapOrders = allOrders.filter(order => {
+                let matchesStartDate = true;
+                let matchesEndDate = true;
+                
+                if (startDate && order.date) {
+                    matchesStartDate = order.date >= startDate;
+                }
+                if (endDate && order.date) {
+                    matchesEndDate = order.date <= endDate;
+                }
+                
+                return matchesStartDate && matchesEndDate && order.address && order.address.trim();
+            });
+            
+            console.log('Orders to plot:', mapOrders.length);
+            
+            clearMarkers();
+            
+            const addressGroups = {};
+            let pickupCount = 0;
+            
+            mapOrders.forEach(order => {
+                const cleanedAddr = cleanAddress(order.address);
+                if (cleanedAddr.includes('74 5th Ave')) {
+                    pickupCount++;
+                }
+                
+                if (!addressGroups[cleanedAddr]) {
+                    addressGroups[cleanedAddr] = [];
+                }
+                addressGroups[cleanedAddr].push(order);
+            });
+            
+            document.getElementById('mapOrdersCount').textContent = mapOrders.length;
+            document.getElementById('mapUniqueAddresses').textContent = Object.keys(addressGroups).length;
+            document.getElementById('mapPickupsCount').textContent = pickupCount;
+            
+            for (const [address, orders] of Object.entries(addressGroups)) {
+                try {
+                    const location = await geocodeAddress(address);
+                    if (location) {
+                        const isPickup = address.includes('74 5th Ave');
+                        const marker = new google.maps.Marker({
+                            position: { lat: location.lat, lng: location.lng },
+                            map: map,
+                            title: `${orders.length} order(s) at ${location.formattedAddress}`,
+                            icon: {
+                                path: google.maps.SymbolPath.CIRCLE,
+                                scale: Math.max(6, Math.min(20, 6 + orders.length * 2)),
+                                fillColor: isPickup ? '#10b981' : '#7877c6',
+                                fillOpacity: 0.8,
+                                strokeColor: '#ffffff',
+                                strokeWeight: 2
+                            }
+                        });
+                        
+                        const infoContent = `
+                            <div style="color: #333; font-family: 'Montserrat', sans-serif; max-width: 300px;">
+                                <h3 style="margin: 0 0 10px 0; color: #7877c6; font-size: 16px;">
+                                    ${isPickup ? '📦 Pickup Location' : '📍 Delivery Location'}
+                                </h3>
+                                <p style="margin: 0 0 10px 0; font-weight: 500;">${location.formattedAddress}</p>
+                                <p style="margin: 0 0 15px 0; color: #666;"><strong>${orders.length}</strong> order(s)</p>
+                                <div style="max-height: 200px; overflow-y: auto;">
+                                    ${orders.slice(0, 10).map(order => `
+                                        <div style="border-bottom: 1px solid #eee; padding: 8px 0; font-size: 14px;">
+                                            <div style="font-weight: 500; color: #333;">${order.company}</div>
+                                            <div style="color: #666; font-size: 12px;">
+                                                ${order.date} | ${order.time} | ${order.guestsRaw} guests
+                                            </div>
+                                            <div style="color: #7877c6; font-size: 12px;">${order.platform}</div>
+                                            ${order.driver ? `<div style="color: #555; font-size: 12px; font-weight: 500;">Driver: ${order.driver}</div>` : ''}
+                                        </div>
+                                    `).join('')}
+                                    ${orders.length > 10 ? `<div style="text-align: center; color: #666; font-size: 12px; padding: 5px;">... and ${orders.length - 10} more</div>` : ''}
+                                </div>
+                            </div>
+                        `;
+                        
+                        const infoWindow = new google.maps.InfoWindow({
+                            content: infoContent
+                        });
+                        
+                        marker.addListener('click', () => {
+                            markers.forEach(m => {
+                                if (m.infoWindow) m.infoWindow.close();
+                            });
+                            infoWindow.open(map, marker);
+                        });
+                        
+                        marker.infoWindow = infoWindow;
+                        markers.push(marker);
+                    }
+                } catch (error) {
+                    console.warn('Failed to create marker for address:', address, error);
+                }
+            }
+            
+            console.log('Created', markers.length, 'markers');
+        }
+
+        function showTodaysOrdersOnMap() {
+            const today = getTodaysDate();
+            document.getElementById('mapStartDate').value = today;
+            document.getElementById('mapEndDate').value = today;
+            updateMap();
+        }
+
+        function setMapDateRange(range) {
+            const endDate = new Date();
+            const startDate = new Date();
+            
+            if (range === '7days') {
+                startDate.setDate(endDate.getDate() - 7);
+            } else if (range === '30days') {
+                startDate.setDate(endDate.getDate() - 30);
+            }
+            
+            document.getElementById('mapStartDate').value = startDate.toISOString().split('T')[0];
+            document.getElementById('mapEndDate').value = endDate.toISOString().split('T')[0];
+            
+            updateMap();
+        }
+
         // Initialize and auto-connect
         document.addEventListener('DOMContentLoaded', function() {
-            // Set default analytics date range to last 30 days
             const endDate = new Date();
             const startDate = new Date();
             startDate.setDate(endDate.getDate() - 30);
@@ -1759,7 +1752,6 @@
             document.getElementById('analyticsStartDate').value = startDate.toISOString().split('T')[0];
             document.getElementById('analyticsEndDate').value = endDate.toISOString().split('T')[0];
             
-            // Auto-connect to Google Sheets
             autoConnect();
         });
     </script>
