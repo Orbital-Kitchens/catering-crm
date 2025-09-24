@@ -67,7 +67,7 @@ function viewCustomerHistory(company) {
 
 async function saveInteractionToSheets(company, interaction) {
     const interactionId = Date.now().toString();
-    const payload = {
+    const params = new URLSearchParams({
         id: interactionId,
         company: company,
         type: interaction.type,
@@ -76,21 +76,24 @@ async function saveInteractionToSheets(company, interaction) {
         nextFollowup: interaction.nextFollowupDate || '',
         status: interaction.salesStatus,
         timestamp: new Date().toISOString()
-    };
+    });
     
-    const response = await fetch('https://script.google.com/macros/s/AKfycbxR06hjlCFRr_98JQnDwdp5Kuks08SmQjJTU2HkgLq5AEnVLhqrw4pAoltSk2EtdsjYBQ/exec', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload)
+    const url = `https://script.google.com/macros/s/AKfycbxR06hjlCFRr_98JQnDwdp5Kuks08SmQjJTU2HkgLq5AEnVLhqrw4pAoltSk2EtdsjYBQ/exec?${params}`;
+    
+    const response = await fetch(url, {
+        method: 'GET'
     });
     
     if (!response.ok) {
         throw new Error(`Failed to save interaction: ${response.statusText}`);
     }
     
-    return response.json();
+    const result = await response.text();
+    if (result !== 'SUCCESS') {
+        throw new Error('Unexpected response from server');
+    }
+    
+    return {success: true};
 }
 
 // Update the form submission handler
