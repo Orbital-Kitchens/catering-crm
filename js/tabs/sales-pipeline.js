@@ -1,0 +1,146 @@
+// Sales Pipeline Tab Functions
+
+function updateSalesPipeline() {
+    if (!document.getElementById('pipelineStartDate').value) {
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(endDate.getDate() - 7);
+        
+        document.getElementById('pipelineStartDate').value = startDate.toISOString().split('T')[0];
+        document.getElementById('pipelineEndDate').value = endDate.toISOString().split('T')[0];
+    }
+    
+    const companies = Object.keys(customerTiers);
+    
+    const tier1Count = companies.filter(c => getCustomerTier(c) === 1).length;
+    const overdueCount = companies.filter(c => getFollowupStatus(c) === 'overdue').length;
+    const thisWeekCount = companies.filter(c => ['today', 'thisweek'].includes(getFollowupStatus(c))).length;
+    
+    const companiesWithInteractions = Object.keys(customerInteractions).length;
+    const conversionRate = companies.length > 0 ? Math.round((companiesWithInteractions / companies.length) * 100) : 0;
+    
+    document.getElementById('tier1ProspectsCount').textContent = tier1Count;
+    document.getElementById('overdueFollowupsCount').textContent = overdueCount;
+    document.getElementById('thisWeekFollowupsCount').textContent = thisWeekCount;
+    document.getElementById('conversionRate').textContent = conversionRate + '%';
+    
+    renderPipelineTable();
+    renderFollowupQueue();
+}
+
+function renderPipelineTable() {
+    const searchTerm = document.getElementById('pipelineSearchInput').value.toLowerCase();
+    const tierFilter = document.getElementById('pipelineTierFilter').value;
+    const statusFilter = document.getElementById('pipelineStatusFilter').value;
+    const followupFilter = document.getElementById('pipelineFollowupFilter').value;
+    const startDate = document.getElementById('pipelineStartDate').value;
+    const endDate = document.getElementById('pipelineEndDate').value;
+
+    let companies = Object.keys(customerTiers).filter(company => {
+        const matchesSearch = company.toLowerCase().includes(searchTerm);
+        const matchesTier = !tierFilter || getCustomerTier(company).toString() === tierFilter;
+        
+        const currentStatus = getCurrentSalesStatus(company);
+        const matchesStatus = !statusFilter || currentStatus === statusFilter;
+        
+        let matchesDateRange = true;
+        if (startDate || endDate) {
+            const companyOrders = customerTiers[company].stats.orders;
+            const lastOrderDate = companyOrders.length > 0 ? 
+                companyOrders.sort((a, b) => new Date(b.date) - new Date(a.date))[0].date : null;
+            
+            if (lastOrderDate) {
+                if (startDate && lastOrderDate < startDate) matchesDateRange = false;
+                if (endDate && lastOrderDate > endDate) matchesDateRange = false;
+            } else {
+                matchesDateRange = false;
+            }
+        }
+
+        let matchesFollowup = true;
+        if (followupFilter) {
+            const followupStatus = getFollowupStatus(company);
+            if (followupFilter === 'overdue') matchesFollowup = followupStatus === 'overdue';
+            else if (followupFilter === 'today') matchesFollowup = followupStatus === 'today';
+            else if (followupFilter === 'thisweek') matchesFollowup = ['today', 'thisweek'].includes(followupStatus);
+        }
+        
+        return matchesSearch && matchesTier && matchesStatus && matchesFollowup && matchesDateRange;
+    });
+
+    companies.sort((a, b) => {
+        const tierA = getCustomerTier(a);
+        const tierB = getCustomerTier(b);
+        
+        if (tierA !== tierB) return tierA - tierB;
+        
+        const lastContactA = getLastContactDate(a);
+        const lastContactB = getLastContactDate(b);
+        
+        if (!lastContactA && !lastContactB) return 0;
+        if (!lastContactA) return -1;
+        if (!lastContactB) return 1;
+        
+        return new Date(lastContactA) - new Date(lastContactB);
+    });
+
+    const tableBody = document.getElementById('pipelineTable');
+    
+    if (companies.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="9" style="text-align: center; padding: 40px; color: rgba(255, 255, 255, 0.5);">
+                    No companies found matching the current filters
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tableBody.innerHTML = companies.map(company => {
+        const tier = getCustomerTier(company);
+        const tierData = customerTiers[company];
+        const lastContact = getLastContactDate(company);
+        const nextFollowup = getNextFollowupDate(company);
+        const salesStatus = getCurrentSalesStatus(company);
+        const daysSince = getDaysSinceContact(company);
+        
+        return `
+            <tr>
+                <td><button onclick="openInteractionModal('${company}')" style="background: none; border: none; color: #7877c6; cursor: pointer; font-size: 1.1rem; padding: 5px;" title="Add Note">📝</button></td>
+                <td style="font-weight: 600;">${company}</td>
+                <td><span class="tier-badge tier-${tier}">${tier === 1 ? '🥇' : tier === 2 ? '🥈' : '🥉'}</span></td>
+                <td>${tierData.stats.totalOrders}</td>
+                <td>${tierData.stats.brands.size} brands</td>
+                <td>${Math.round(tierData.stats.avgGuests)}</td>
+                <td>${lastContact ? (daysSince + ' days ago') : 'Never'}</td>
+                <td>${nextFollowup || 'None set'}</td>
+                <td><span class="status-badge status-${salesStatus}">${salesStatus.charAt(0).toUpperCase() + salesStatus.slice(1)}</span></td>
+                <td>
+                    <button class="btn btn-small btn-secondary" onclick="viewCustomerHistory('${company}')">History</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function renderFollowupQueue() {
+    const companies = Object.keys(customerTiers);
+    
+    const overdueCompanies = companies.filter(c => getFollowupStatus(c) === 'overdue');
+    const todayCompanies = companies.filter(c => getFollowupStatus(c) === 'today');
+    const thisWeekCompanies = companies.filter(c => getFollowupStatus(c) === 'thisweek');
+    
+    document.getElementById('todayOverdueList').innerHTML = 
+        overdueCompanies.length > 0 ? overdueCompanies.join(', ') : 'None';
+    
+    document.getElementById('todayDueList').innerHTML = 
+        todayCompanies.length > 0 ? todayCompanies.join(', ') : 'None';
+    
+    document.getElementById('thisWeekList').innerHTML = 
+        thisWeekCompanies.length > 0 ? thisWeekCompanies.join(', ') : 'None';
+}
+
+function filterPipelineCustomers() {
+    renderPipelineTable();
+}
