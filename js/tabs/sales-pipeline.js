@@ -10,10 +10,22 @@ function updateSalesPipeline() {
     const tier1Count = companies.filter(c => getCustomerTier(c) === 1).length;
     const overdueCount = companies.filter(c => getFollowupStatus(c) === 'overdue').length;
     const thisWeekCount = companies.filter(c => ['today', 'thisweek'].includes(getFollowupStatus(c))).length;
-    
-    const companiesWithInteractions = Object.keys(customerInteractions).length;
-    const conversionRate = companies.length > 0 ? Math.round((companiesWithInteractions / companies.length) * 100) : 0;
-    
+
+    const convertedCustomers = Object.keys(customerInteractions).filter(company => {
+        const interactions = customerInteractions[company];
+        if (!interactions || interactions.length === 0) return false;
+        const latestInteraction = interactions.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+        const isConverted = latestInteraction && latestInteraction.salesStatus && 
+                        latestInteraction.salesStatus.toLowerCase().trim() === 'converted';
+        
+        if (isConverted) {
+            console.log(`Converted customer found: ${company}, status: "${latestInteraction.salesStatus}"`);
+        }
+        
+        return isConverted;
+    });
+    const conversionRate = companies.length > 0 ? ((convertedCustomers.length / companies.length) * 100).toFixed(2) : "0.00";
+        
     document.getElementById('tier1ProspectsCount').textContent = tier1Count;
     document.getElementById('overdueFollowupsCount').textContent = overdueCount;
     document.getElementById('thisWeekFollowupsCount').textContent = thisWeekCount;
