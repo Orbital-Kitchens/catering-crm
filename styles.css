@@ -330,6 +330,11 @@ body {
     flex: 0 1 450px;
 }
 
+#salesPipelineTab .orders-table th:nth-child(7), 
+#salesPipelineTab .orders-table td:nth-child(7) { 
+    min-width: 120px; 
+}
+
 .status-badge {
     display: inline-block;
     padding: 6px 14px;

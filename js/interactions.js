@@ -30,7 +30,7 @@ function viewCustomerHistory(company) {
             
             <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
                 <h4>Account Summary</h4>
-                <p><strong>Tier:</strong> ${tierData.tier} (Score: ${tierData.score}/100)</p>
+                <p><strong>Tier:</strong> ${tierData.tier}</p>
                 <p><strong>Total Orders:</strong> ${tierData.stats.totalOrders}</p>
                 <p><strong>Brands Used:</strong> ${Array.from(tierData.stats.brands).join(', ')}</p>
                 <p><strong>Average Headcount:</strong> ${Math.round(tierData.stats.avgGuests)}</p>
