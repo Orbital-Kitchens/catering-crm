@@ -65,7 +65,6 @@ function viewCustomerHistory(company) {
         <span class="close" onclick="closeInteractionModal()">&times;</span>
         ${historyHtml}
         <div style="margin-top: 30px;">
-            <button class="btn" onclick="openInteractionModal('${company}')">Add New Interaction</button>
             <button class="btn btn-secondary" onclick="closeInteractionModal()">Close</button>
         </div>
     `;
