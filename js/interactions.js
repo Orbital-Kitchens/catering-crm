@@ -11,6 +11,13 @@ function openInteractionModal(company) {
 function closeInteractionModal() {
     document.getElementById('interactionModal').style.display = 'none';
     document.getElementById('interactionForm').reset();
+    
+    // Reset submit button state
+    const submitBtn = document.querySelector('#interactionForm button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Save Interaction';
+    }
 }
 
 function viewCustomerHistory(company) {
@@ -109,6 +116,17 @@ document.getElementById('interactionForm').addEventListener('submit', async func
         salesStatus: document.getElementById('salesStatus').value
     };
     
+    // Get the submit button and show loading state
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: center;">
+            <div style="width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top: 2px solid white; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 8px;"></div>
+            Saving...
+        </div>
+    `;
+    
     try {
         await saveInteractionToSheets(company, interaction);
         
@@ -118,17 +136,32 @@ document.getElementById('interactionForm').addEventListener('submit', async func
         }
         customerInteractions[company].push({...interaction, timestamp: new Date().toISOString()});
         
-        closeInteractionModal();
-        showStatus('Interaction saved successfully!', 'success');
+        // Show success state
+        submitBtn.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center;">
+                <span style="color: #10b981; margin-right: 8px;">✓</span>
+                Saved!
+            </div>
+        `;
         
-        // Refresh current tab
-        const activeTab = document.querySelector('.tab-content.active').id;
-        if (activeTab === 'todaysOrdersTab') updateTodaysOrders();
-        else if (activeTab === 'orderHistoryTab') updateOrderHistory();
-        else if (activeTab === 'salesPipelineTab') updateSalesPipeline();
+        // Close modal after a brief delay
+        setTimeout(() => {
+            closeInteractionModal();
+            showStatus('Interaction saved successfully!', 'success');
+            
+            // Refresh current tab
+            const activeTab = document.querySelector('.tab-content.active').id;
+            if (activeTab === 'todaysOrdersTab') updateTodaysOrders();
+            else if (activeTab === 'orderHistoryTab') updateOrderHistory();
+            else if (activeTab === 'salesPipelineTab') updateSalesPipeline();
+        }, 1000);
         
     } catch (error) {
         console.error('Error saving interaction:', error);
         showStatus('Failed to save interaction', 'error');
+        
+        // Reset button on error
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
     }
 });
