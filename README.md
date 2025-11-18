@@ -9,6 +9,7 @@ A comprehensive Customer Relationship Management system for Orbital Catering, bu
 - **All Orders**: Complete order history with advanced filtering by date, platform, and customer tier
 - **Analytics**: Interactive charts and top customer insights with customizable date ranges
 - **Sales Pipeline**: Tier-based customer segmentation with follow-up tracking and conversion metrics
+- **Churn Analysis**: Customer retention monitoring with risk segmentation and platform switching detection
 - **Delivery Map**: Interactive Google Maps integration showing order locations and pickup points
 
 ### 🎯 Customer Intelligence
@@ -35,6 +36,20 @@ A comprehensive Customer Relationship Management system for Orbital Catering, bu
 - Detailed order information in map popups
 - Date range filtering for map visualization
 
+### 📉 Churn Analysis & Retention Insights
+- **Risk-Based Segmentation**: Automatic customer classification into risk categories:
+  - **Critical**: 60+ days since last order (high churn risk)
+  - **At-Risk**: 30-59 days since last order (moderate risk)
+  - **Watching**: 15+ days for frequent customers (average order frequency ≤21 days)
+  - **Lost**: 180+ days without orders (excluded from active monitoring)
+- **Platform Switching Detection**: Identifies customers who moved from Flex Catering to competitors
+  - Tracks Flex-to-competitor transitions within 60-day windows
+  - Shows switch timing, platform destination, and order frequency
+  - Highlights high-value customers (Tier 1/2) who switched platforms
+- **Advanced Filtering**: Multi-dimensional filtering by risk status, tier, and last contact date
+- **Contact Tracking Integration**: View days since last customer interaction alongside churn status
+- **Paginated Results**: Handles large customer datasets with 50 items per page
+
 ## 🏗️ Technical Architecture
 
 ### Frontend Structure
@@ -52,6 +67,7 @@ A comprehensive Customer Relationship Management system for Orbital Catering, bu
         ├── order-history.js    # Historical order management
         ├── analytics.js        # Charts and analytics dashboard
         ├── sales-pipeline.js   # Customer relationship management
+        ├── churn-analysis.js   # Customer retention and churn monitoring
         └── map.js             # Geographic visualization
 ```
 
@@ -94,6 +110,46 @@ The system automatically calculates customer tiers based on a 100-point scoring 
 - **🥇 Tier 1**: 70+ points (High-value prospects)
 - **🥈 Tier 2**: 45-69 points (Medium potential)
 - **🥉 Tier 3**: <45 points (Standard customers)
+
+## 📊 Churn Analysis Algorithm
+
+The system automatically monitors customer engagement and identifies retention risks using time-based behavior analysis:
+
+### Churn Status Classification
+
+Customers require **at least 2 orders** to be evaluated for churn risk. Single-order customers are excluded from churn monitoring.
+
+**Status Definitions:**
+- **Active**: Ordered within last 15 days, or longer gaps for infrequent customers
+- **Watching**: 15+ days since last order for frequent customers (avg. frequency ≤21 days)
+- **At-Risk**: 30-59 days since last order
+- **Critical**: 60-179 days since last order (high churn probability)
+- **Lost**: 180+ days without orders (excluded from active churn metrics)
+
+### Platform Switching Detection Logic
+
+The system identifies customers who transition from Flex Catering to competitor platforms:
+
+**Detection Criteria:**
+1. Customer ordered from Flex Catering
+2. Next order placed on a non-Direct platform (competitor)
+3. Transition occurred within 60-day window
+4. Tracks most recent switch per customer
+
+**Key Metrics Tracked:**
+- Total Flex Catering order count
+- Total competitor platform order count
+- Days between last Flex order and competitor order
+- Customer tier at time of switch
+- Platform destination
+
+### Churn Rate Calculation
+
+```
+Churn Rate = (Critical + At-Risk Customers) / Total Active Customers × 100
+```
+
+Customers are considered "active" if they have 2+ orders and their last order was within 180 days.
 
 ## 🚀 Setup & Installation
 
@@ -152,6 +208,14 @@ The system automatically calculates customer tiers based on a 100-point scoring 
 3. Track overdue follow-ups and upcoming tasks
 4. View detailed customer profiles with interaction history
 
+### Monitoring Customer Churn
+1. Navigate to Churn Analysis tab to view at-risk customers
+2. Review top metrics: at-risk count, platform switchers, churn rate, silent customers
+3. Expand risk segments (Critical/At-Risk/Watching) to see specific companies
+4. Identify platform switchers who left Flex Catering for competitors
+5. Filter churning customers by status, tier, or last contact date
+6. Take proactive action by adding notes and scheduling follow-ups
+
 ## 🔒 Security Considerations
 
 - API keys are restricted to specific domains
@@ -170,7 +234,3 @@ The system automatically calculates customer tiers based on a 100-point scoring 
 ## 📄 License
 
 This project is proprietary software owned by Orbital Kitchens.
-
----
-
-**Built with ❤️ for Orbital Kitchens' catering management needs**
