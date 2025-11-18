@@ -305,3 +305,182 @@ async function loadInteractionsFromSheets() {
 
     return interactions;
 }
+
+// Churn Analysis Functions
+
+function daysBetween(date1, date2) {
+    const d1 = new Date(date1);
+    const d2 = new Date(date2);
+    const diffTime = Math.abs(d2 - d1);
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+}
+
+function getCompanyOrders(company) {
+    return allOrders
+        .filter(order => order.company === company)
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+}
+
+function calculateAvgOrderFrequency(orders) {
+    if (orders.length < 2) return null;
+
+    const sortedOrders = [...orders].sort((a, b) => new Date(a.date) - new Date(b.date));
+    const gaps = [];
+
+    for (let i = 1; i < sortedOrders.length; i++) {
+        const gap = daysBetween(sortedOrders[i-1].date, sortedOrders[i].date);
+        gaps.push(gap);
+    }
+
+    return gaps.length > 0 ? gaps.reduce((sum, gap) => sum + gap, 0) / gaps.length : null;
+}
+
+function getChurnStatus(company) {
+    const orders = getCompanyOrders(company);
+
+    // Need at least 2 orders to be considered for churn
+    if (orders.length < 2) return null;
+
+    const lastOrderDate = orders[0].date;
+    const today = new Date().toISOString().split('T')[0];
+    const daysSince = daysBetween(lastOrderDate, today);
+    const avgFrequency = calculateAvgOrderFrequency(orders);
+
+    // Companies with no orders in 180+ days are considered lost, not critical
+    if (daysSince >= 180) return 'lost';
+    if (daysSince >= 60) return 'critical';
+    if (daysSince >= 30) return 'at-risk';
+    if (daysSince >= 15 && avgFrequency && avgFrequency <= 21) return 'watching';
+
+    return 'active';
+}
+
+function detectPlatformSwitchers() {
+    const switchersByCompany = {};
+    const companies = Object.keys(customerTiers);
+
+    companies.forEach(company => {
+        const orders = getCompanyOrders(company).sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        // Count Flex vs other platform orders
+        let flexOrderCount = 0;
+        let otherOrderCount = 0;
+
+        orders.forEach(order => {
+            if (order.platform === 'Flex Catering') {
+                flexOrderCount++;
+            } else if (order.platform !== 'Direct') {
+                otherOrderCount++;
+            }
+        });
+
+        for (let i = 0; i < orders.length - 1; i++) {
+            if (orders[i].platform === 'Flex Catering' &&
+                orders[i+1].platform !== 'Flex Catering' &&
+                orders[i+1].platform !== 'Direct') {
+
+                const daysBetweenOrders = daysBetween(orders[i].date, orders[i+1].date);
+
+                // Only consider it a switch if they ordered within 60 days
+                if (daysBetweenOrders <= 60) {
+                    // Keep only the most recent switch per company
+                    if (!switchersByCompany[company] ||
+                        new Date(orders[i+1].date) > new Date(switchersByCompany[company].switchedToOrder.date)) {
+                        switchersByCompany[company] = {
+                            company,
+                            flexOrder: orders[i],
+                            switchedToOrder: orders[i+1],
+                            daysBetween: daysBetweenOrders,
+                            tier: getCustomerTier(company),
+                            flexOrderCount,
+                            otherOrderCount
+                        };
+                    }
+                }
+            }
+        }
+    });
+
+    return Object.values(switchersByCompany);
+}
+
+function calculateChurnMetrics() {
+    const companies = Object.keys(customerTiers);
+    const today = new Date().toISOString().split('T')[0];
+
+    let atRiskCount = 0;
+    let criticalCount = 0;
+    let watchingCount = 0;
+    let silent30Count = 0;
+
+    const churningCompanies = [];
+
+    companies.forEach(company => {
+        const status = getChurnStatus(company);
+        const tier = getCustomerTier(company);
+        const orders = getCompanyOrders(company);
+
+        // Exclude 'lost' companies (180+ days) and 'active' companies
+        if (status && status !== 'active' && status !== 'lost') {
+            const lastOrderDate = orders[0].date;
+            const daysSince = daysBetween(lastOrderDate, today);
+
+            churningCompanies.push({
+                company,
+                status,
+                tier,
+                daysSince,
+                lastOrderDate,
+                totalOrders: orders.length,
+                avgFrequency: calculateAvgOrderFrequency(orders)
+            });
+
+            if (status === 'critical') criticalCount++;
+            if (status === 'at-risk') atRiskCount++;
+            if (status === 'watching') watchingCount++;
+
+            // Count Tier 1/2 customers silent 30+ days
+            if ((tier === 1 || tier === 2) && daysSince >= 30) {
+                silent30Count++;
+            }
+        }
+    });
+
+    // Calculate churn rate: % of previously active customers (2+ orders in prior 90 days) who haven't ordered in 60+ days
+    const ninetyDaysAgo = new Date();
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+    const ninetyDaysAgoStr = ninetyDaysAgo.toISOString().split('T')[0];
+
+    const sixtyDaysAgo = new Date();
+    sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+    const sixtyDaysAgoStr = sixtyDaysAgo.toISOString().split('T')[0];
+
+    const activeIn90Days = companies.filter(company => {
+        const orders = getCompanyOrders(company);
+        const ordersIn90Days = orders.filter(o => o.date >= ninetyDaysAgoStr);
+        return ordersIn90Days.length >= 2;
+    });
+
+    const churnedCustomers = activeIn90Days.filter(company => {
+        const orders = getCompanyOrders(company);
+        const lastOrder = orders[0];
+        return lastOrder.date < sixtyDaysAgoStr;
+    });
+
+    const churnRate = activeIn90Days.length > 0
+        ? ((churnedCustomers.length / activeIn90Days.length) * 100).toFixed(1)
+        : "0.0";
+
+    const platformSwitchers = detectPlatformSwitchers();
+
+    return {
+        atRiskCount: atRiskCount + criticalCount, // Total at-risk includes critical
+        platformSwitchersCount: platformSwitchers.length,
+        churnRate: churnRate + '%',
+        silent30Count,
+        churningCompanies,
+        platformSwitchers,
+        criticalCount,
+        watchingCount
+    };
+}

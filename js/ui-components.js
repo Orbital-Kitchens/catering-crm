@@ -125,13 +125,15 @@ function showTab(tabName) {
     });
     document.getElementById(tabName + 'Tab').classList.add('active');
     event.target.classList.add('active');
-    
+
     if (tabName === 'todaysOrders') {
         updateTodaysOrders();
     } else if (tabName === 'orderHistory') {
         updateOrderHistory();
     } else if (tabName === 'analytics') {
         updateAnalytics();
+    } else if (tabName === 'churnAnalysis') {
+        updateChurnAnalysis();
     } else if (tabName === 'map') {
         updateMap();
     }

@@ -31,12 +31,13 @@
             <button class="tab-btn" onclick="showTab('orderHistory')">📋 All Orders</button>
             <button class="tab-btn" onclick="showTab('analytics')">📊 Analytics</button>
             <button class="tab-btn" onclick="showTab('salesPipeline')">🎯 Sales Pipeline</button>
+            <button class="tab-btn" onclick="showTab('churnAnalysis')">⚠️ Churn Analysis</button>
             <button class="tab-btn" onclick="showTab('map')">🗺️ Map</button>
         </div>
 
         <!-- Today's Orders Tab -->
         <div class="tab-content active" id="todaysOrdersTab">
-            <h2>📅 Today's Orders</h2>
+            <h2>Today's Orders</h2>
             
             <div class="stats-grid">
                 <div class="stat-card">
@@ -91,7 +92,7 @@
 
         <!-- Order History Tab -->
         <div class="tab-content" id="orderHistoryTab">
-            <h2>📋 All Orders</h2>
+            <h2>All Orders</h2>
             
             <div class="stats-grid">
                 <div class="stat-card">
@@ -154,7 +155,7 @@
 
         <!-- Analytics Tab -->
         <div class="tab-content" id="analyticsTab">
-            <h2>📊 Analytics Dashboard</h2>
+            <h2>Analytics Dashboard</h2>
             
             <div class="date-filters">
                 <label>Date Range:</label>
@@ -204,7 +205,7 @@
 
         <!-- Sales Pipeline Tab -->
         <div class="tab-content" id="salesPipelineTab">
-            <h2>🎯 Sales Pipeline</h2>
+            <h2>Sales Pipeline</h2>
 
             <div class="top-customers" style="margin-bottom: 30px;">
                 <h3>Follow-up Queue</h3>
@@ -327,9 +328,143 @@
             </div>
         </div>
 
+        <!-- Churn Analysis Tab -->
+        <div class="tab-content" id="churnAnalysisTab">
+            <h2>Churn Analysis</h2>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="atRiskCount">0</div>
+                    <div class="stat-label">At-Risk Customers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="platformSwitchersCount">0</div>
+                    <div class="stat-label">Platform Switchers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="churnRate">0%</div>
+                    <div class="stat-label">Churn Rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="silent30Count">0</div>
+                    <div class="stat-label">Silent 30+ Days</div>
+                </div>
+            </div>
+
+            <!-- Churn Segments Section -->
+            <div class="top-customers" style="margin-bottom: 30px;">
+                <h3>Churn Segments</h3>
+                <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; margin-bottom: 15px;">
+                    Note: Companies with no orders in the past 180 days are considered lost and excluded from Critical segment.
+                </p>
+                <div id="churnSegments">
+                    <div class="customer-item" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); cursor: pointer;" onclick="toggleChurnSegment('critical')">
+                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                            <div style="display: flex; align-items: center;">
+                                <span style="color: #f87171; font-weight: 600; margin-right: 15px;">🔴 Critical (60-179 days silent)</span>
+                                <span id="criticalCount" style="color: rgba(255, 255, 255, 0.6);">0 companies</span>
+                            </div>
+                            <span id="criticalToggle" style="color: #f87171; font-size: 1.2rem;">▼</span>
+                        </div>
+                    </div>
+                    <div id="criticalChurnList" style="display: none; padding: 15px; background: rgba(0, 0, 0, 0.2); border-radius: 8px; margin-top: 10px; color: rgba(255, 255, 255, 0.8);"></div>
+
+                    <div class="customer-item" style="background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.3); cursor: pointer;" onclick="toggleChurnSegment('atRisk')">
+                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                            <div style="display: flex; align-items: center;">
+                                <span style="color: #fbbf24; font-weight: 600; margin-right: 15px;">🟡 At-Risk (30-59 days silent)</span>
+                                <span id="atRiskSegmentCount" style="color: rgba(255, 255, 255, 0.6);">0 companies</span>
+                            </div>
+                            <span id="atRiskToggle" style="color: #fbbf24; font-size: 1.2rem;">▼</span>
+                        </div>
+                    </div>
+                    <div id="atRiskChurnList" style="display: none; padding: 15px; background: rgba(0, 0, 0, 0.2); border-radius: 8px; margin-top: 10px; color: rgba(255, 255, 255, 0.8);"></div>
+
+                    <div class="customer-item" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); cursor: pointer;" onclick="toggleChurnSegment('watching')">
+                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                            <div style="display: flex; align-items: center;">
+                                <span style="color: #34d399; font-weight: 600; margin-right: 15px;">🟢 Watching (15-29 days, declining frequency)</span>
+                                <span id="watchingSegmentCount" style="color: rgba(255, 255, 255, 0.6);">0 companies</span>
+                            </div>
+                            <span id="watchingToggle" style="color: #34d399; font-size: 1.2rem;">▼</span>
+                        </div>
+                    </div>
+                    <div id="watchingChurnList" style="display: none; padding: 15px; background: rgba(0, 0, 0, 0.2); border-radius: 8px; margin-top: 10px; color: rgba(255, 255, 255, 0.8);"></div>
+                </div>
+            </div>
+
+            <!-- Platform Switchers Section -->
+            <div class="top-customers" style="margin-bottom: 30px;">
+                <h3>Platform Switchers (Flex → Other Platforms)</h3>
+                <div style="overflow-x: auto;">
+                    <table class="orders-table">
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>Last Flex Order</th>
+                                <th>Next Platform</th>
+                                <th>Next Order Date</th>
+                                <th>Days Between</th>
+                                <th># Flex Orders</th>
+                                <th># Other Orders</th>
+                                <th>Tier</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="platformSwitchersTable">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="search-filter">
+                <input type="text" id="churnSearchInput" placeholder="Search companies..." onkeyup="filterChurnCustomers()" style="flex: 2;">
+                <select id="churnStatusFilter" onchange="filterChurnCustomers()" style="flex: 0.8;">
+                    <option value="">All Status</option>
+                    <option value="critical">🔴 Critical</option>
+                    <option value="at-risk">🟡 At-Risk</option>
+                    <option value="watching">🟢 Watching</option>
+                </select>
+                <select id="churnTierFilter" onchange="filterChurnCustomers()" style="flex: 0.6;">
+                    <option value="">All Tiers</option>
+                    <option value="1">Tier 1</option>
+                    <option value="2">Tier 2</option>
+                    <option value="3">Tier 3</option>
+                </select>
+                <select id="lastContactFilter" onchange="filterChurnCustomers()" style="flex: 0.8;">
+                    <option value="">Last Contact</option>
+                    <option value="never">Never Contacted</option>
+                    <option value="30">30+ days ago</option>
+                    <option value="60">60+ days ago</option>
+                </select>
+            </div>
+
+            <!-- Detailed Churn Table -->
+            <div style="overflow-x: auto;">
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Company</th>
+                            <th>Tier</th>
+                            <th>Total Orders</th>
+                            <th>Last Order</th>
+                            <th>Days Silent</th>
+                            <th>Avg Frequency</th>
+                            <th>Status</th>
+                            <th>Last Contact</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="churnTable">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- Map Tab -->
         <div class="tab-content" id="mapTab">
-            <h2>🗺️ Delivery Map</h2>
+            <h2>Delivery Map</h2>
             
             <div class="date-filters">
                 <button class="btn btn-secondary" onclick="showTodaysOrdersOnMap()">📅 Today's Orders</button>
@@ -424,6 +559,7 @@
     <script src="js/tabs/order-history.js"></script>
     <script src="js/tabs/analytics.js"></script>
     <script src="js/tabs/sales-pipeline.js"></script>
+    <script src="js/tabs/churn-analysis.js"></script>
     <script src="js/tabs/map.js"></script>
     <script src="js/interactions.js"></script>
     <script src="js/main.js"></script>
