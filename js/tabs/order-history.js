@@ -1,5 +1,8 @@
 // Order History Tab Functions
 
+let historyCurrentPage = 1;
+const historyItemsPerPage = 50;
+
 function updateOrderHistory() {
     const uniqueCompanies = new Set(allOrders.map(o => o.company)).size;
     const avgGuests = allOrders.length > 0 ? 
@@ -41,11 +44,16 @@ function renderHistoryOrders() {
         return matchesSearch && matchesPlatform && matchesTier && matchesStartDate && matchesEndDate;
     });
 
-    filteredOrders = filteredOrders.slice(0, 500);
+    // Pagination logic
+    const totalOrders = filteredOrders.length;
+    const totalPages = Math.ceil(totalOrders / historyItemsPerPage);
+    const startIndex = (historyCurrentPage - 1) * historyItemsPerPage;
+    const endIndex = startIndex + historyItemsPerPage;
+    const paginatedOrders = filteredOrders.slice(startIndex, endIndex);
 
     const tableBody = document.getElementById('historyOrdersTable');
-    
-    if (filteredOrders.length === 0) {
+
+    if (paginatedOrders.length === 0) {
         tableBody.innerHTML = `
             <tr>
                 <td colspan="13" style="text-align: center; padding: 40px; color: rgba(255, 255, 255, 0.5);">
@@ -53,12 +61,13 @@ function renderHistoryOrders() {
                 </td>
             </tr>
         `;
+        updateHistoryPaginationControls(0, 0);
         return;
     }
     
-    tableBody.innerHTML = filteredOrders.map(order => {
+    tableBody.innerHTML = paginatedOrders.map(order => {
         const tier = getCustomerTier(order.company);
-        
+
         return `
             <tr>
                 <td><button onclick="openInteractionModal('${order.company}')" style="background: none; border: none; color: #7877c6; cursor: pointer; font-size: 1.1rem; padding: 5px;" title="Add Note">📝</button></td>
@@ -77,6 +86,44 @@ function renderHistoryOrders() {
             </tr>
         `;
     }).join('');
+
+    updateHistoryPaginationControls(totalOrders, totalPages);
+}
+
+function updateHistoryPaginationControls(totalOrders, totalPages) {
+    const orderHistoryTab = document.getElementById('orderHistoryTab');
+
+    const existingPagination = orderHistoryTab.querySelector('.history-pagination-controls');
+    if (existingPagination) {
+        existingPagination.remove();
+    }
+
+    if (totalPages <= 1) return;
+
+    const paginationHtml = `
+        <div class="history-pagination-controls" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding: 20px; background: rgba(255, 255, 255, 0.02); border-radius: 12px;">
+            <div style="color: rgba(255, 255, 255, 0.7);">
+                Showing ${((historyCurrentPage - 1) * historyItemsPerPage) + 1}-${Math.min(historyCurrentPage * historyItemsPerPage, totalOrders)} of ${totalOrders} orders
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button class="btn btn-small btn-secondary" onclick="changeHistoryPage(${historyCurrentPage - 1})" ${historyCurrentPage === 1 ? 'disabled' : ''}>← Previous</button>
+                <span style="color: rgba(255, 255, 255, 0.9);">Page ${historyCurrentPage} of ${totalPages}</span>
+                <button class="btn btn-small btn-secondary" onclick="changeHistoryPage(${historyCurrentPage + 1})" ${historyCurrentPage === totalPages ? 'disabled' : ''}>Next →</button>
+            </div>
+        </div>
+    `;
+
+    const tableWrapper = orderHistoryTab.querySelector('div[style*="overflow-x: auto"]');
+    if (tableWrapper) {
+        tableWrapper.insertAdjacentHTML('afterend', paginationHtml);
+    }
+}
+
+function changeHistoryPage(newPage) {
+    if (newPage >= 1) {
+        historyCurrentPage = newPage;
+        filterHistoryOrders();
+    }
 }
 
 function filterHistoryOrders() {

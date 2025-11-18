@@ -360,6 +360,8 @@ function detectPlatformSwitchers() {
     const companies = Object.keys(customerTiers);
 
     companies.forEach(company => {
+        if (company.toLowerCase() === 'n/a') return;
+
         const orders = getCompanyOrders(company).sort((a, b) => new Date(a.date) - new Date(b.date));
 
         // Count Flex vs other platform orders
@@ -416,6 +418,8 @@ function calculateChurnMetrics() {
     const churningCompanies = [];
 
     companies.forEach(company => {
+        if (company.toLowerCase() === 'n/a') return;
+
         const status = getChurnStatus(company);
         const tier = getCustomerTier(company);
         const orders = getCompanyOrders(company);
