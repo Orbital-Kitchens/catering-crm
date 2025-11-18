@@ -128,7 +128,9 @@ function renderPipelineTable() {
         
         return `
             <tr>
-                <td><button onclick="openInteractionModal('${company}')" style="background: none; border: none; color: #7877c6; cursor: pointer; font-size: 1.1rem; padding: 5px;" title="Add Note">📝</button></td>
+                <td>
+                    <button class="btn btn-small btn-secondary" onclick="viewCustomerHistory('${company}')">History</button>
+                </td>
                 <td style="font-weight: 600;">${company}</td>
                 <td><span class="tier-badge tier-${tier}">${tier === 1 ? '🥇' : tier === 2 ? '🥈' : '🥉'}</span></td>
                 <td>${tierData.stats.totalOrders}</td>
@@ -138,9 +140,7 @@ function renderPipelineTable() {
                 <td>${lastContact ? (daysSince + ' days ago') : 'Never'}</td>
                 <td>${nextFollowup || 'None set'}</td>
                 <td><span class="status-badge status-${salesStatus}">${salesStatus.charAt(0).toUpperCase() + salesStatus.slice(1)}</span></td>
-                <td>
-                    <button class="btn btn-small btn-secondary" onclick="viewCustomerHistory('${company}')">History</button>
-                </td>
+                <td><button onclick="openInteractionModal('${company}')" style="background: none; border: none; color: #7877c6; cursor: pointer; font-size: 1.1rem; padding: 5px;" title="Add Note">📝</button></td>
             </tr>
         `;
     }).join('');

@@ -23,23 +23,23 @@ function closeInteractionModal() {
 function viewCustomerHistory(company) {
     const interactions = customerInteractions[company] || [];
     const tierData = customerTiers[company];
-    
+
     let historyHtml = `
         <div style="max-height: 400px; overflow-y: auto;">
             <h3 style="color: #7877c6; margin-bottom: 20px;">${company} - Customer Profile</h3>
-            
+
             <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-                <h4>Account Summary</h4>
+                <h4 style="margin-bottom: 15px;">Account Summary</h4>
                 <p><strong>Tier:</strong> ${tierData.tier}</p>
                 <p><strong>Total Orders:</strong> ${tierData.stats.totalOrders}</p>
                 <p><strong>Brands Used:</strong> ${Array.from(tierData.stats.brands).join(', ')}</p>
                 <p><strong>Average Headcount:</strong> ${Math.round(tierData.stats.avgGuests)}</p>
                 <p><strong>Platforms:</strong> ${Array.from(tierData.stats.platforms).join(', ')}</p>
             </div>
-            
+
             <h4>Interaction History</h4>
     `;
-    
+
     if (interactions.length === 0) {
         historyHtml += '<p style="color: rgba(255,255,255,0.5);">No interactions recorded yet.</p>';
     } else {
@@ -56,19 +56,51 @@ function viewCustomerHistory(company) {
             </div>
         `).join('');
     }
-    
+
     historyHtml += '</div>';
-    
+
     const modal = document.getElementById('interactionModal');
     const modalContent = modal.querySelector('.modal-content');
+
+    // Store the original content so we can restore it later
+    if (!modal.dataset.originalContent) {
+        modal.dataset.originalContent = modalContent.innerHTML;
+    }
+
     modalContent.innerHTML = `
-        <span class="close" onclick="closeInteractionModal()">&times;</span>
+        <span class="close" onclick="closeHistoryModal()">&times;</span>
         ${historyHtml}
         <div style="margin-top: 30px;">
-            <button class="btn btn-secondary" onclick="closeInteractionModal()">Close</button>
+            <button class="btn" onclick="openInteractionModalFromHistory('${company}')">Add New Note</button>
+            <button class="btn btn-secondary" onclick="closeHistoryModal()">Close</button>
         </div>
     `;
     modal.style.display = 'block';
+}
+
+function openInteractionModalFromHistory(company) {
+    const modal = document.getElementById('interactionModal');
+    const modalContent = modal.querySelector('.modal-content');
+
+    // Restore original form content
+    if (modal.dataset.originalContent) {
+        modalContent.innerHTML = modal.dataset.originalContent;
+    }
+
+    // Now open the interaction modal with the company pre-filled
+    openInteractionModal(company);
+}
+
+function closeHistoryModal() {
+    const modal = document.getElementById('interactionModal');
+    const modalContent = modal.querySelector('.modal-content');
+
+    // Restore original form content
+    if (modal.dataset.originalContent) {
+        modalContent.innerHTML = modal.dataset.originalContent;
+    }
+
+    modal.style.display = 'none';
 }
 
 async function saveInteractionToSheets(company, interaction) {

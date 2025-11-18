@@ -156,11 +156,15 @@ function standardizePlatform(platform) {
 
 function calculateCustomerTiers() {
     const companyStats = {};
-    
-    // Calculate stats for each company
+    const thirdPartyPlatforms = ['ezCater', 'CaterCow', 'ShareBite', 'DoorDash', 'Grubhub', 'Flex Catering'];
+
+    // Calculate stats for each company (only third-party platform orders)
     allOrders.forEach(order => {
         if (!order.company || order.company.toLowerCase() === 'unknown') return;
-        
+
+        // Only include orders from third-party platforms
+        if (!thirdPartyPlatforms.includes(order.platform)) return;
+
         if (!companyStats[order.company]) {
             companyStats[order.company] = {
                 orders: [],
@@ -171,7 +175,7 @@ function calculateCustomerTiers() {
                 avgGuests: 0
             };
         }
-        
+
         const stats = companyStats[order.company];
         stats.orders.push(order);
         stats.totalOrders++;
@@ -283,11 +287,11 @@ async function loadInteractionsFromSheets() {
     
     rows.forEach(row => {
         const [id, company, type, date, notes, nextFollowup, status, createdAt] = row;
-        
+
         if (!interactions[company]) {
             interactions[company] = [];
         }
-        
+
         interactions[company].push({
             id: id,
             type: type,
@@ -298,6 +302,6 @@ async function loadInteractionsFromSheets() {
             timestamp: createdAt
         });
     });
-    
+
     return interactions;
 }

@@ -206,6 +206,30 @@
         <div class="tab-content" id="salesPipelineTab">
             <h2>🎯 Sales Pipeline</h2>
 
+            <div class="top-customers" style="margin-bottom: 30px;">
+                <h3>Follow-up Queue</h3>
+                <div id="followupQueue">
+                    <div class="customer-item" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3);">
+                        <div style="display: flex; align-items: center; width: 100%;">
+                            <span style="color: #f87171; font-weight: 600; margin-right: 15px;">📅 Today's Overdue</span>
+                            <div id="todayOverdueList" style="flex: 1; color: rgba(255, 255, 255, 0.8);"></div>
+                        </div>
+                    </div>
+                    <div class="customer-item" style="background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.3);">
+                        <div style="display: flex; align-items: center; width: 100%;">
+                            <span style="color: #fbbf24; font-weight: 600; margin-right: 15px;">📋 Due Today</span>
+                            <div id="todayDueList" style="flex: 1; color: rgba(255, 255, 255, 0.8);"></div>
+                        </div>
+                    </div>
+                    <div class="customer-item" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3);">
+                        <div style="display: flex; align-items: center; width: 100%;">
+                            <span style="color: #34d399; font-weight: 600; margin-right: 15px;">📅 This Week</span>
+                            <div id="thisWeekList" style="flex: 1; color: rgba(255, 255, 255, 0.8);"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 20px; margin-bottom: 30px;">
                 <h4 style="color: #7877c6; margin-bottom: 15px;">Tier Scoring Criteria</h4>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; font-size: 0.9rem; color: rgba(255, 255, 255, 0.8);">
@@ -229,7 +253,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-number" id="tier1ProspectsCount">0</div>
@@ -282,7 +306,9 @@
                 <table class="orders-table">
                     <thead>
                         <tr>
-                            <th style="width: 30px;"></th>
+                            <th style="width: 80px; position: relative;">
+                                <span class="info-icon" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 10;" title="This pipeline only shows customers who have ordered through one of the following platforms: ezCater, CaterCow, ShareBite, DoorDash, Grubhub, Flex Catering.">ℹ️</span>
+                            </th>
                             <th>Company</th>
                             <th>Tier</th>
                             <th>Total Orders</th>
@@ -292,35 +318,12 @@
                             <th>Last Contact</th>
                             <th>Next Follow-up</th>
                             <th>Status</th>
+                            <th style="width: 30px;"></th>
                         </tr>
                     </thead>
                     <tbody id="pipelineTable">
                     </tbody>
                 </table>
-            </div>
-
-            <div class="top-customers">
-                <h3>Follow-up Queue</h3>
-                <div id="followupQueue">
-                    <div class="customer-item" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3);">
-                        <div style="display: flex; align-items: center; width: 100%;">
-                            <span style="color: #f87171; font-weight: 600; margin-right: 15px;">📅 Today's Overdue</span>
-                            <div id="todayOverdueList" style="flex: 1; color: rgba(255, 255, 255, 0.8);"></div>
-                        </div>
-                    </div>
-                    <div class="customer-item" style="background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.3);">
-                        <div style="display: flex; align-items: center; width: 100%;">
-                            <span style="color: #fbbf24; font-weight: 600; margin-right: 15px;">📋 Due Today</span>
-                            <div id="todayDueList" style="flex: 1; color: rgba(255, 255, 255, 0.8);"></div>
-                        </div>
-                    </div>
-                    <div class="customer-item" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3);">
-                        <div style="display: flex; align-items: center; width: 100%;">
-                            <span style="color: #34d399; font-weight: 600; margin-right: 15px;">📅 This Week</span>
-                            <div id="thisWeekList" style="flex: 1; color: rgba(255, 255, 255, 0.8);"></div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 

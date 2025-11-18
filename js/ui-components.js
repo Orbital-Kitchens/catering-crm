@@ -141,7 +141,7 @@ function showTab(tabName) {
 window.toggleCustomerOrders = function(index) {
     const ordersDetail = document.getElementById(`orders-${index}`);
     const toggle = document.getElementById(`toggle-${index}`);
-    
+
     if (ordersDetail.classList.contains('expanded')) {
         ordersDetail.classList.remove('expanded');
         toggle.classList.remove('expanded');
@@ -152,7 +152,6 @@ window.toggleCustomerOrders = function(index) {
         document.querySelectorAll('.customer-toggle.expanded').forEach(t => {
             t.classList.remove('expanded');
         });
-        
         ordersDetail.classList.add('expanded');
         toggle.classList.add('expanded');
     }
