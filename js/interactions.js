@@ -24,6 +24,14 @@ function viewCustomerHistory(company) {
     const interactions = customerInteractions[company] || [];
     const tierData = customerTiers[company];
 
+    // Get contact info from most recent order
+    const companyOrders = allOrders.filter(order => order.company === company);
+    const mostRecentOrder = companyOrders.length > 0 ?
+        companyOrders.sort((a, b) => new Date(b.date) - new Date(a.date))[0] : null;
+
+    const contactPerson = mostRecentOrder?.contactPerson || 'N/A';
+    const phoneNumber = mostRecentOrder?.phoneNumber || 'N/A';
+
     let historyHtml = `
         <div style="max-height: 400px; overflow-y: auto;">
             <h3 style="color: #7877c6; margin-bottom: 20px;">${company} - Customer Profile</h3>
@@ -35,6 +43,8 @@ function viewCustomerHistory(company) {
                 <p><strong>Brands Used:</strong> ${Array.from(tierData.stats.brands).join(', ')}</p>
                 <p><strong>Average Headcount:</strong> ${Math.round(tierData.stats.avgGuests)}</p>
                 <p><strong>Platforms:</strong> ${Array.from(tierData.stats.platforms).join(', ')}</p>
+                <p><strong>Contact:</strong> ${contactPerson}</p>
+                <p><strong>Phone:</strong> ${phoneNumber}</p>
             </div>
 
             <h4>Interaction History</h4>
@@ -134,65 +144,68 @@ async function saveInteractionToSheets(company, interaction) {
     return {success: true};
 }
 
-// Update the form submission handler
-document.getElementById('interactionForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const company = document.getElementById('modalCompany').value;
-    const interaction = {
-        type: document.getElementById('interactionType').value,
-        date: document.getElementById('interactionDate').value,
-        notes: document.getElementById('interactionNotes').value,
-        nextFollowupDate: document.getElementById('nextFollowupDate').value || null,
-        salesStatus: document.getElementById('salesStatus').value
-    };
-    
-    // Get the submit button and show loading state
-    const submitBtn = this.querySelector('button[type="submit"]');
-    const originalText = submitBtn.textContent;
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = `
-        <div style="display: flex; align-items: center; justify-content: center;">
-            <div style="width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top: 2px solid white; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 8px;"></div>
-            Saving...
-        </div>
-    `;
-    
-    try {
-        await saveInteractionToSheets(company, interaction);
-        
-        // Also save locally for immediate UI updates
-        if (!customerInteractions[company]) {
-            customerInteractions[company] = [];
-        }
-        customerInteractions[company].push({...interaction, timestamp: new Date().toISOString()});
-        
-        // Show success state
+// Update the form submission handler - use event delegation on the modal container
+document.addEventListener('submit', async function(e) {
+    // Check if the submitted form is the interaction form
+    if (e.target && e.target.id === 'interactionForm') {
+        e.preventDefault();
+
+        const company = document.getElementById('modalCompany').value;
+        const interaction = {
+            type: document.getElementById('interactionType').value,
+            date: document.getElementById('interactionDate').value,
+            notes: document.getElementById('interactionNotes').value,
+            nextFollowupDate: document.getElementById('nextFollowupDate').value || null,
+            salesStatus: document.getElementById('salesStatus').value
+        };
+
+        // Get the submit button and show loading state
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
         submitBtn.innerHTML = `
             <div style="display: flex; align-items: center; justify-content: center;">
-                <span style="color: #10b981; margin-right: 8px;">✓</span>
-                Saved!
+                <div style="width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top: 2px solid white; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 8px;"></div>
+                Saving...
             </div>
         `;
-        
-        // Close modal after a brief delay
-        setTimeout(() => {
-            closeInteractionModal();
-            showStatus('Interaction saved successfully!', 'success');
-            
-            // Refresh current tab
-            const activeTab = document.querySelector('.tab-content.active').id;
-            if (activeTab === 'todaysOrdersTab') updateTodaysOrders();
-            else if (activeTab === 'orderHistoryTab') updateOrderHistory();
-            else if (activeTab === 'salesPipelineTab') updateSalesPipeline();
-        }, 1000);
-        
-    } catch (error) {
-        console.error('Error saving interaction:', error);
-        showStatus('Failed to save interaction', 'error');
-        
-        // Reset button on error
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalText;
+
+        try {
+            await saveInteractionToSheets(company, interaction);
+
+            // Reload interactions from Google Sheets to ensure we have the latest data
+            customerInteractions = await loadInteractionsFromSheets();
+
+            console.log('Interaction saved and reloaded for company:', company);
+            console.log('Current interactions for this company:', customerInteractions[company]);
+
+            // Show success state
+            submitBtn.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: center;">
+                    <span style="color: #10b981; margin-right: 8px;">✓</span>
+                    Saved!
+                </div>
+            `;
+
+            // Close modal after a brief delay
+            setTimeout(() => {
+                closeInteractionModal();
+                showStatus('Interaction saved successfully!', 'success');
+
+                // Refresh current tab
+                const activeTab = document.querySelector('.tab-content.active').id;
+                if (activeTab === 'todaysOrdersTab') updateTodaysOrders();
+                else if (activeTab === 'orderHistoryTab') updateOrderHistory();
+                else if (activeTab === 'salesPipelineTab') updateSalesPipeline();
+            }, 1000);
+
+        } catch (error) {
+            console.error('Error saving interaction:', error);
+            showStatus('Failed to save interaction', 'error');
+
+            // Reset button on error
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        }
     }
 });
